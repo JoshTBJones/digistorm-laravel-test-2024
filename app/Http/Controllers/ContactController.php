@@ -2,78 +2,140 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use App\Models\Contact;
 use App\Models\PhoneNumber;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-
+use Illuminate\Http\RedirectResponse;
+use App\Http\Requests\ContactPostRequest;
+use App\Http\Requests\ContactPutRequest;
 class ContactController extends Controller
 {
+    /**
+     * Display a paginated list of contacts with their phone numbers.
+     *
+     * @return \Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\Foundation\Application
+     */
     public function index(): View|Application|Factory|\Illuminate\Contracts\Foundation\Application
     {
+        // Eager load phone numbers to optimize database queries
+        $contacts =  Contact::with('phoneNumbers')->paginate(5);
 
-        $contacts =  Contact::paginate(5);
-
-        return view('contacts.index', compact('contacts'));
-    }
-
-    public function create(): View|Application|Factory|\Illuminate\Contracts\Foundation\Application
-    {
-        return view('contacts.create');
+        return view('pages.contacts.index', compact('contacts'));
     }
 
     /**
-     * @throws \Throwable
+     * Show the form for creating a new contact.
+     *
+     * @return \Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\Foundation\Application
      */
-    public function store(Request $request): Response
+    public function create(): View|Application|Factory|\Illuminate\Contracts\Foundation\Application
     {
-        $contact = new Contact();
-        $contact->fill($request->all());
-        $contact->save();
-        foreach ($request->number as $number) {
-            PhoneNumber::create(['number' => $number, 'contact_id' => $contact->id]);
-        }
-
-        return view('contacts.show', compact('contact'));
+        return view('pages.contacts.create');
     }
 
+    /**
+     * Store a newly created contact in storage.
+     *
+     * @param ContactPostRequest $request The validated request containing contact details
+     * @return RedirectResponse Redirects to show page on success, back with errors on failure
+     * @throws \Throwable When database transaction fails
+     */
+    public function store(ContactPostRequest $request): RedirectResponse
+    {
+        try {
+            $validated = $request->validated();
+            $contact = null;
+
+            DB::transaction(function () use ($validated, &$contact) {
+                $contact = new Contact();
+                $contact->fill($validated);
+                $contact->save();
+
+                foreach ($validated['number'] as $number) {
+                    PhoneNumber::create(['number' => $number, 'contact_id' => $contact->id]);
+                }
+            });
+
+            return redirect()->route('contacts.show', compact('contact'));
+        } catch (\Throwable $e) {
+            Log::error($e);
+            return redirect()
+                ->back()
+                ->withInput()
+                ->withErrors($e->getMessage());
+        }
+    }
+
+    /**
+     * Display the specified contact.
+     *
+     * @param Contact $contact The contact to display
+     * @return \Illuminate\View\View|\Illuminate\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\Foundation\Application
+     */
     public function show(Contact $contact): View|Application|Factory|\Illuminate\Contracts\Foundation\Application
     {
-        return view('contacts.show', compact('contact'));
+        return view('pages.contacts.show', compact('contact'));
     }
 
+    /**
+     * Show the form for editing the specified contact.
+     *
+     * @param Contact $contact The contact to edit
+     * @return \Illuminate\View\View|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\View
+     */
     public function edit(Contact $contact): View|Application|Factory|\Illuminate\Contracts\Foundation\Application
     {
-        return view('contacts.edit', compact('contact'));
+        return view('pages.contacts.edit', compact('contact'));
     }
 
-    public function update(Request $request, Contact $contact): Response
+    /**
+     * Update the specified contact in storage.
+     * 
+     * @param ContactPutRequest $request The validated request containing updated contact details
+     * @param Contact $contact The contact to update
+     * @return RedirectResponse Redirects to show page on success, back with errors on failure
+     * @throws \Throwable When database transaction fails
+     */
+    public function update(ContactPutRequest $request, Contact $contact): RedirectResponse
     {
-        $contact->fill($request->all());
+        try {
+            $validated = $request->validated();
 
-        foreach ($contact->phoneNumbers as $phoneNumber) {
-            if (! in_array($phoneNumber->number, $request->number)) {
-                $phoneNumber->delete();
-            }
-        }
-        foreach ($request->number as $number) {
-            $alreadyAssigned = $contact->phoneNumbers->firstWhere('number', $number);
-            if (
-                empty($alreadyAssigned)
-                && ! empty($number)
-            ) {
-                PhoneNumber::create(['number' => $number, 'contact_id' => $contact->id]);
-            }
-        }
-        $contact->save();
+            DB::transaction(function () use ($validated, $contact) {
+                $contact->fill($validated);
 
-        return redirect()->route('contacts.show', compact('contact'));
+                // Delete phone numbers not present in the request
+                $contact->phoneNumbers()->whereNotIn('number', $validated['number'])->delete();
+
+                // Add new phone numbers
+                foreach ($validated['number'] as $number) {
+                    $contact->phoneNumbers()->firstOrCreate(['number' => $number]);
+                }
+
+                $contact->save();
+            });
+
+            return redirect()->route('contacts.show', compact('contact'));
+        } catch (\Throwable $e) {
+            Log::error($e);
+            return redirect()
+                ->back()
+                ->withInput()
+                ->withErrors($e->getMessage());
+        }
     }
 
-    public function destroy(Contact $contact): Response
+    /**
+     * Delete the specified contact from storage.
+     *
+     * @param Contact $contact The contact to delete
+     * @return RedirectResponse Redirects to contacts index page after deletion
+     */
+    public function destroy(Contact $contact): RedirectResponse
     {
         $contact->delete();
 

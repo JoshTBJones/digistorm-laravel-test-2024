@@ -9,7 +9,15 @@ class Contact extends Model
 {
     use HasFactory;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'first_name',
+        'last_name',
+        'DOB',
+        'company_name',
+        'position',
+        'email',
+        'phone_number'
+    ];
 
     /**
      * Phone numbers that belong to this contact.
