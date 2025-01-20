@@ -1,0 +1,17 @@
+- [x] Fix the create and update contact methods
+- [x] Add contact validation
+- [x] First Name - required
+- [x] Last Name - required
+- [x] DOB - optional but a valid date when entered
+- [x] Company name - required
+- [x] Position - required
+- [x] Email - optional but a valid email is required and unique when entered
+- [x] Phone Numbers (Mobile phones, work phones) - The system can record many numbers per contact but at least one contact number is required
+- [x] Implement contact search by first name, Last name or Company
+- [x] Create a job that runs daily and creates a log file with how many contacts were created and updated on that day.
+- [x] Identify deficiencies, improvements and potential security issues in the codebase and include a report of them in the solution.  e.g: create a file such as issues.md under the repository listing your findings.
+- [x] Fix form data not retained after submitting a form that has validation errors.
+- [x] Improve the ability to save multiple phone numbers for a contact.  At the moment you can add one at a time.
+- [x] Implement functional tests for searching, creating, updating and deleting contacts.
+- [x] Bonus points!
+- [x] Improve System UI layout
