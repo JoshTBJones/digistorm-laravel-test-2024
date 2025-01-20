@@ -23,11 +23,13 @@
                 Edit
             </button>
         </a>
-        <a href="{{ route('contacts.destroy', ['contact' => $contact]) }}"> 
-            <button type="button" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-transparent border border-gray-200 rounded-e-lg hover:bg-red-500 hover:text-white focus:z-10 focus:ring-2 focus:ring-gray-500 focus:bg-gray-200 focus:text-white dark:border-white dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:bg-gray-700">
+        <form action="{{ route('contacts.destroy', ['contact' => $contact]) }}" method="POST" class="inline">
+            @csrf
+            @method('DELETE')
+            <button type="submit" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-transparent border border-gray-200 rounded-e-lg hover:bg-red-500 hover:text-white focus:z-10 focus:ring-2 focus:ring-gray-500 focus:bg-gray-200 focus:text-white dark:border-white dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:bg-gray-700">
                 Delete
             </button>
-        </a>
+        </form>
         </div>
     </div>
 </li>
