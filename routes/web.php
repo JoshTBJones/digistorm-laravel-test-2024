@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\SearchController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -12,3 +13,4 @@ Route::get('/home', function () {
 })->name('home');
 
 Route::resource('contacts', ContactController::class);
+Route::resource('search', SearchController::class);
