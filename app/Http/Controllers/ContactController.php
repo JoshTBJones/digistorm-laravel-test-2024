@@ -55,9 +55,7 @@ class ContactController extends Controller
                 $contact->fill($validated);
                 $contact->save();
 
-                foreach ($validated['number'] as $number) {
-                    PhoneNumber::create(['number' => $number, 'contact_id' => $contact->id]);
-                }
+                $contact->syncPhoneNumbers($validated['number']);
             });
 
             return redirect()->route('contacts.show', compact('contact'));
@@ -112,9 +110,7 @@ class ContactController extends Controller
                 $contact->phoneNumbers()->whereNotIn('number', $validated['number'])->delete();
 
                 // Add new phone numbers
-                foreach ($validated['number'] as $number) {
-                    $contact->phoneNumbers()->firstOrCreate(['number' => $number]);
-                }
+                $contact->syncPhoneNumbers($validated['number']);
 
                 $contact->save();
             });

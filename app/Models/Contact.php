@@ -36,6 +36,40 @@ class Contact extends Model
     }
 
     /**
+     * Synchronize phone numbers for this contact.
+     *
+     * This method takes an array of phone numbers and syncs them with the contact,
+     * removing any numbers not in the provided array and adding new ones.
+     * Empty values are filtered out before syncing.
+     *
+     * @param array $numbers Array of phone numbers to sync
+     * @return void
+     */
+    public function syncPhoneNumbers(array $numbers): void
+    {
+        // Remove empty values
+        $numbers = array_filter($numbers);
+
+        // Get existing phone numbers
+        $existingNumbers = $this->phoneNumbers()->pluck('number')->toArray();
+
+        // Find numbers to delete
+        $numbersToDelete = array_diff($existingNumbers, $numbers);
+
+        // Find numbers to add
+        $numbersToAdd = array_diff($numbers, $existingNumbers);
+
+        // Delete numbers not in the provided array
+        $this->phoneNumbers()->whereIn('number', $numbersToDelete)->delete();
+
+        // Add new numbers
+        foreach ($numbersToAdd as $number) {
+            $this->phoneNumbers()->create(['number' => $number]);
+        }
+    }
+
+
+    /**
      * Clean-up dependent records.
      */
     public static function boot() {
