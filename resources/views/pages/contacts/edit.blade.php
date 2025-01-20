@@ -98,7 +98,7 @@
                             pattern="^\+?[1-9]\d{1,14}$"
                             title="Enter a valid phone number (e.g., +1234567890)"
                         />
-                        <x-button type="button" color="danger" class="w-full float-right" label="remove number" onclick="removePhoneNumberInput(this, {{ $index }})"/>
+                        <x-button type="button" color="danger" class="w-full btn-danger" label="remove number" onclick="removePhoneNumberInput(this, {{ $index }})"/>
                     </div>
                 @endforeach
 
