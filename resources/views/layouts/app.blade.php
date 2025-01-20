@@ -10,21 +10,13 @@
     <title>{{ config('app.name', 'Digistorm test') }}</title>
 
     <!-- Scripts -->
-    <script src="{{ asset('js/app.js') }}" defer></script>
-
-    @vite('resources/css/app.css')
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body>
     <div id="app">
-        <nav>
-            <div>
-                <a href="{{ url('/') }}">
-                    {{ config('app.name', 'Digistorm test') }}
-                </a>
-            </div>
-        </nav>
+        @include('partials.header')
 
-        <main class="py-4">
+        <main class="mx-auto max-w-7xl items-center justify-between p-6 lg:px-8">
             @yield('content')
         </main>
     </div>
