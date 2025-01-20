@@ -2,9 +2,8 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
-
-class ContactPostRequest extends FormRequest
+use App\Http\Requests\BaseContactRequest;
+class ContactPostRequest extends BaseContactRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -21,15 +20,10 @@ class ContactPostRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            'first_name'   => 'required|string|max:255',
-            'last_name'    => 'required|string|max:255',
-            'DOB'          => 'date|nullable',
-            'company_name' => 'required|string|max:255',
-            'position'     => 'required|string|max:255',
+        return array_merge(parent::rules(), [
             'email'        => 'email|nullable|unique:contacts,email',
             'number.*'     => 'required|string|max:255|regex:/^\+?[1-9]\d{1,14}$/|unique:phone_numbers,number',
-        ];
+        ]);
     }
 }
 
