@@ -27,6 +27,7 @@ class BaseContactRequest extends FormRequest
             'DOB'          => 'date|nullable',
             'company_name' => 'required|string|max:255',
             'position'     => 'required|string|max:255',
+            'number'       => 'required|array',
         ];
     }
 }

@@ -82,20 +82,24 @@
                     <x-button
                         type="button"
                         color="secondary"
+                        class="btn-secondary"
                         label="Add Another Phone Number"
                         onclick="addPhoneNumberInput(this)"
                     />
                 </div>
 
                 @foreach($contact->phoneNumbers as $index => $phoneNumber)
-                    <x-form.input 
-                        label="Phone Number {{ $index + 1 }}" 
-                        name="number[]" 
-                        type="text" 
-                        value="{{ $phoneNumber->number }}" 
-                        pattern="^\+?[1-9]\d{1,14}$"
-                        title="Enter a valid phone number (e.g., +1234567890)"
-                    />
+                    <div class="sm:col-span-3">
+                        <x-form.input 
+                            label="Phone Number {{ $index + 1 }}" 
+                            name="number[]" 
+                            type="text" 
+                            value="{{ $phoneNumber->number }}" 
+                            pattern="^\+?[1-9]\d{1,14}$"
+                            title="Enter a valid phone number (e.g., +1234567890)"
+                        />
+                        <x-button type="button" color="danger" class="w-full float-right" label="remove number" onclick="removePhoneNumberInput(this, {{ $index }})"/>
+                    </div>
                 @endforeach
 
                 @foreach(old('number', []) as $index => $number)
@@ -121,6 +125,16 @@
 @endsection
 
 <script>
+    /**
+     * Adds a new phone number input field to the form.
+     * 
+     * This function creates a new div containing a label and input field for a phone number.
+     * The new field is appended to the container element that holds all phone number inputs.
+     * The index number for the new field is automatically calculated based on existing fields.
+     *
+     * @param {HTMLElement} button - The button element that triggered adding the new input
+     * @returns {void}
+     */
     function addPhoneNumberInput(button) {
         const container = button.closest('.grid');
         const newIndex = container.querySelectorAll('input[name="number[]"]').length + 1;
@@ -157,5 +171,15 @@
             </div>
         `;
         container.appendChild(div);
+    }
+
+    /**
+     * Removes a phone number input field from the form.
+     * 
+     * @param {HTMLElement} button - The button element that triggered the removal
+     * @returns {void}
+     */
+    function removePhoneNumberInput(button) {
+        button.parentElement.remove();
     }
 </script>

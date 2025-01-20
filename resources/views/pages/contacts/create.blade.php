@@ -118,6 +118,16 @@
 @endsection
 
 <script>
+    /**
+     * Adds a new phone number input field to the form.
+     * 
+     * This function creates a new div containing a label and input field for a phone number.
+     * The new field is appended to the container element that holds all phone number inputs.
+     * The index number for the new field is automatically calculated based on existing fields.
+     *
+     * @param {HTMLElement} button - The button element that triggered adding the new input
+     * @returns {void}
+     */
     function addPhoneNumberInput(button) {
         const container = button.closest('.grid');
         const newIndex = container.querySelectorAll('input[name="number[]"]').length + 1;
